@@ -24,6 +24,7 @@ clickhouse_requires = ['clickhouse-driver>=0.0.8', 'clickhouse-cityhash']
 bigquery_requires = ['google-cloud-bigquery>=1.0.0', 'pydata-google-auth']
 hdf5_requires = ['tables>=3.0.0']
 parquet_requires = ['pyarrow>=0.6.0']
+geospatial_requires = ['geoalchemy2', 'geopandas']
 
 all_requires = (
     impala_requires
@@ -36,6 +37,7 @@ all_requires = (
     + bigquery_requires
     + hdf5_requires
     + parquet_requires
+    + geospatial_requires
 )
 
 develop_requires = all_requires + ['click', 'flake8', 'mypy', 'pytest>=3']
@@ -70,6 +72,7 @@ setup(
         'bigquery': bigquery_requires,
         'hdf5': hdf5_requires,
         'parquet': parquet_requires,
+        'geospatial': geospatial_requires,
     },
     description="Productivity-centric Python Big Data Framework",
     long_description=LONG_DESCRIPTION,
