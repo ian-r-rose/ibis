@@ -17,7 +17,11 @@ import collections
 import pytest
 
 import ibis
-from ibis.expr.tests.mocks import GeoMockConnection, MockConnection
+from ibis.expr.tests.mocks import (
+    GeoAlchemyMockConnection,
+    GeoMapDMockConnection,
+    MockConnection,
+)
 
 
 @pytest.fixture
@@ -98,10 +102,20 @@ def lineitem(con):
 
 
 @pytest.fixture
-def geo_con():
-    return GeoMockConnection()
+def geo_mapd_con():
+    return GeoMapDMockConnection()
 
 
 @pytest.fixture
-def geo_table(geo_con):
-    return geo_con.table('geo')
+def geo_mapd_table(geo_mapd_con):
+    return geo_mapd_con.table('geo')
+
+
+@pytest.fixture
+def geoalchemy_con():
+    return GeoAlchemyMockConnection()
+
+
+@pytest.fixture
+def geoalchemy_table(geoalchemy_con):
+    return geoalchemy_con.table('geo')

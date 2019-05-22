@@ -2,13 +2,7 @@
 
 CWD="$(dirname "${0}")"
 
-declare -A argcommands=([sqlite]=sqlite
-                        [parquet]="parquet -i"
-                        [postgres]=postgres
-                        [clickhouse]=clickhouse
-                        [omnisci]=omnisci
-                        [mysql]=mysql
-                        [impala]=impala)
+declare -A argcommands=([postgres]=postgres)
 
 if [[ "$#" == 0 ]]; then
     ARGS=(${!argcommands[@]})  # keys of argcommands

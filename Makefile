@@ -5,10 +5,10 @@ MAKEFILE_DIR = $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 PYTHON_VERSION := 3.6
 PYTHONHASHSEED := "random"
 COMPOSE_FILE := "$(MAKEFILE_DIR)/ci/docker-compose.yml"
-DOCKER := docker-compose -f $(COMPOSE_FILE)
+DOCKER := docker-compose.exe -f $(COMPOSE_FILE)
 DOCKER_RUN := PYTHON_VERSION=${PYTHON_VERSION} $(DOCKER) run --rm
 PYTEST_OPTIONS :=
-SERVICES := omnisci postgres mysql clickhouse impala kudu-master kudu-tserver
+SERVICES := postgres
 
 clean:
 	python setup.py clean
@@ -62,8 +62,12 @@ testmost:
 	    --doctest-modules --doctest-ignore-import-errors ${PYTEST_OPTIONS}
 
 testfast:
-	PYTHONHASHSEED=${PYTHONHASHSEED} $(MAKEFILE_DIR)/ci/test.sh -n auto -m 'not (udf or impala or hdfs or bigquery)' \
-	    --doctest-modules --doctest-ignore-import-errors ${PYTEST_OPTIONS}
+	PYTHONHASHSEED=${PYTHONHASHSEED} $(MAKEFILE_DIR)/ci/test.sh -n auto -m 'not (udf or impala or hdfs or bigquery or kudu or mysql or sqlite or pandas or clickhouse or mapd or spark or file)' \
+	    --doctest-ignore-import-errors ${PYTEST_OPTIONS}
+
+testpostgres:
+	PYTHONHASHSEED=${PYTHONHASHSEED} $(MAKEFILE_DIR)/ci/test.sh -n auto -m 'postgresql' \
+	    --doctest-ignore-import-errors ${PYTEST_OPTIONS}
 
 docclean:
 	$(DOCKER_RUN) ibis-docs rm -rf /tmp/docs.ibis-project.org

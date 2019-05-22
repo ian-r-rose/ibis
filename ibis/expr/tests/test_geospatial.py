@@ -33,9 +33,42 @@ def test_geo_literals_smoke(modifier):
     ibis.literal(multipolygon, type='multipolygon{}'.format(modifier))
 
 
-def test_geo_ops_smoke(geo_table):
-    """Smoke tests for geo spatial operations."""
-    t = geo_table
+def test_geo_mapd_ops_smoke(geo_mapd_table):
+    """Smoke tests for MapD geospatial operations."""
+    t = geo_mapd_table
+
+    # alias for fields
+    point = t.geo_point
+    linestring = t.geo_linestring
+    polygon = t.geo_polygon
+    multipolygon = t.geo_multipolygon
+
+    # test ops
+    point.srid()
+    point.x()
+    point.y()
+
+    linestring.contains(point)
+    linestring.end_point()
+    linestring.length()
+    linestring.max_distance(point)
+    linestring.point_n(1)
+    linestring.start_point()
+    linestring.x_max()
+    linestring.x_min()
+    linestring.y_max()
+    linestring.y_min()
+
+    polygon.area()
+    polygon.perimeter()
+
+    multipolygon.n_points()
+    multipolygon.n_rings()
+
+
+def test_geoalchemy_ops_smoke(geoalchemy_table):
+    """Smoke tests for GeoAlchemy geospatial operations."""
+    t = geoalchemy_table
 
     # alias for fields
     point = t.geo_point
