@@ -6,6 +6,7 @@ import warnings
 from datetime import date, datetime
 from operator import methodcaller
 
+import geopandas as gp
 import numpy as np
 import pandas as pd
 import pandas.util.testing as tm
@@ -1548,3 +1549,9 @@ def test_string_to_binary_round_trip(con):
         [row[0][0] for row in con.raw_sql(sql_string).fetchall()], name='tmp'
     )
     tm.assert_series_equal(result, expected)
+
+
+def test_load_geodata(con):
+    t = con.table('geo')
+    result = t.execute()
+    assert isinstance(result, gp.GeoDataFrame)
