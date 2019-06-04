@@ -1551,12 +1551,14 @@ def test_string_to_binary_round_trip(con):
     tm.assert_series_equal(result, expected)
 
 
+@pytest.mark.postgis
 def test_load_geodata(con):
     t = con.table('geo')
     result = t.execute()
     assert isinstance(result, gp.GeoDataFrame)
 
 
+@pytest.mark.postgis
 def test_select_point_geodata(geotable):
     expr = geotable['geo_point']
     sqla_expr = expr.compile()
@@ -1567,6 +1569,7 @@ def test_select_point_geodata(geotable):
     assert data.geom_type.iloc[0] == 'Point'
 
 
+@pytest.mark.postgis
 def test_select_linestring_geodata(geotable):
     expr = geotable['geo_linestring']
     sqla_expr = expr.compile()
@@ -1580,6 +1583,7 @@ def test_select_linestring_geodata(geotable):
     assert data.geom_type.iloc[0] == 'LineString'
 
 
+@pytest.mark.postgis
 def test_select_polygon_geodata(geotable):
     expr = geotable['geo_polygon']
     sqla_expr = expr.compile()
@@ -1593,6 +1597,7 @@ def test_select_polygon_geodata(geotable):
     assert data.geom_type.iloc[0] == 'Polygon'
 
 
+@pytest.mark.postgis
 def test_select_multipolygon_geodata(geotable):
     expr = geotable['geo_multipolygon']
     sqla_expr = expr.compile()
@@ -1606,6 +1611,7 @@ def test_select_multipolygon_geodata(geotable):
     assert data.geom_type.iloc[0] == 'MultiPolygon'
 
 
+@pytest.mark.postgis
 def test_geo_area(geotable, gdf):
     expr = geotable.geo_multipolygon.area()
     result = expr.execute()
@@ -1613,6 +1619,7 @@ def test_geo_area(geotable, gdf):
     tm.assert_series_equal(result, expected, check_names=False)
 
 
+@pytest.mark.postgis
 def test_geo_buffer(geotable, gdf):
     expr = geotable.geo_linestring.buffer(1.0)
     result = expr.execute()
@@ -1622,26 +1629,31 @@ def test_geo_buffer(geotable, gdf):
     )
 
 
+@pytest.mark.postgis
 def test_geo_contains(geotable):
     expr = geotable.geo_point.buffer(1.0).contains(geotable.geo_point)
     assert expr.execute().all()
 
 
+@pytest.mark.postgis
 def test_geo_contains_properly(geotable):
     expr = geotable.geo_point.buffer(1.0).contains_properly(geotable.geo_point)
     assert expr.execute().all()
 
 
+@pytest.mark.postgis
 def test_geo_covers(geotable):
     expr = geotable.geo_point.buffer(1.0).covers(geotable.geo_point)
     assert expr.execute().all()
 
 
+@pytest.mark.postgis
 def test_geo_covered_by(geotable):
     expr = geotable.geo_point.covered_by(geotable.geo_point.buffer(1.0))
     assert expr.execute().all()
 
 
+@pytest.mark.postgis
 def test_geo_envelope(geotable, gdf):
     expr = geotable.geo_linestring.buffer(1.0).envelope()
     result = expr.execute()
@@ -1649,6 +1661,7 @@ def test_geo_envelope(geotable, gdf):
     tm.assert_series_equal(result.area, expected.area, check_names=False)
 
 
+@pytest.mark.postgis
 def test_geo_within(geotable):
     expr = geotable.geo_point.within(geotable.geo_point.buffer(1.0))
     assert expr.execute().all()
