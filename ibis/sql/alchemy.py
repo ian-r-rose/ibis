@@ -100,8 +100,27 @@ def sa_boolean(_, satype, nullable=True):
     return dt.Boolean(nullable=nullable)
 
 
-@dt.dtype.register(SQLAlchemyDialect, sa.types.Numeric)
-def sa_numeric(_, satype, nullable=True):
+@dt.dtype.register(MySQLDialect, sa.types.Numeric)
+def sa_mysql_numeric(_, satype, nullable=True):
+    # https://dev.mysql.com/doc/refman/8.0/en/fixed-point-types.html
+    return dt.Decimal(
+        satype.precision or 10, satype.scale or 0, nullable=nullable
+    )
+
+
+@dt.dtype.register(PostgreSQLDialect, sa.types.Numeric)
+def sa_postgres_numeric(_, satype, nullable=True):
+    # PostgreSQL allows any precision for numeric values if not specified,
+    # up to the implementation limit. Here, default to the maximum value that
+    # can be specified by the user. The scale defaults to zero.
+    # https://www.postgresql.org/docs/10/datatype-numeric.html
+    return dt.Decimal(
+        satype.precision or 1000, satype.scale or 0, nullable=nullable
+    )
+
+
+@dt.dtype.register(SQLiteDialect, sa.types.Numeric)
+def sa_sqlite_numeric(_, satype, nullable=True):
     return dt.Decimal(satype.precision, satype.scale, nullable=nullable)
 
 
@@ -134,6 +153,21 @@ def sa_float(_, satype, nullable=True):
 @dt.dtype.register(PostgreSQLDialect, sa.dialects.postgresql.DOUBLE_PRECISION)
 def sa_double(_, satype, nullable=True):
     return dt.Double(nullable=nullable)
+
+
+@dt.dtype.register(PostgreSQLDialect, sa.dialects.postgresql.UUID)
+def sa_uuid(_, satype, nullable=True):
+    return dt.Any(nullable=nullable)
+
+
+@dt.dtype.register(PostgreSQLDialect, sa.dialects.postgresql.JSON)
+def sa_json(_, satype, nullable=True):
+    return dt.Any(nullable=nullable)
+
+
+@dt.dtype.register(PostgreSQLDialect, sa.dialects.postgresql.JSONB)
+def sa_jsonb(_, satype, nullable=True):
+    return dt.Any(nullable=nullable)
 
 
 if geospatial_supported:
@@ -510,7 +544,7 @@ def _translate_case(t, cases, results, default):
 
 def _negate(t, expr):
     op = expr.op()
-    arg, = map(t.translate, op.args)
+    (arg,) = map(t.translate, op.args)
     return sa.not_(arg) if isinstance(expr, ir.BooleanValue) else -arg
 
 
@@ -1382,7 +1416,7 @@ class _AlchemyTableSet(TableSetFormatter):
                 )
             elif jtype is ops.LeftAntiJoin:
                 result = sa.select([result]).where(
-                    ~sa.exists(sa.select([1]).where(onclause))
+                    ~(sa.exists(sa.select([1]).where(onclause)))
                 )
             else:
                 raise NotImplementedError(jtype)
@@ -1520,8 +1554,10 @@ def _maybe_to_geodataframe(df, schema):
     geospatial column is present in the dataframe, convert it to a
     GeoDataFrame.
     """
+
     def to_shapely(row, name):
         return shape.to_shape(row[name]) if row[name] is not None else None
+
     if len(df) and geospatial_supported:
         geom_col = None
         for name, dtype in schema.items():

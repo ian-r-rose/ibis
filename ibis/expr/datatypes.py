@@ -128,6 +128,9 @@ class DataType:
 
 
 class Any(DataType):
+    scalar = ir.AnyScalar
+    column = ir.AnyColumn
+
     __slots__ = ()
 
 
